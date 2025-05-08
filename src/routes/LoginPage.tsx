@@ -1,46 +1,10 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
 import { useTabStore } from "../stores/useTabStore";
 
+
 const LoginPage: React.FC = () => {
+  const login = useTabStore((state) => state.login);
   const setActiveTab = useTabStore((state) => state.setActiveTab);
-  const navigate = useNavigate();
-
-  const [userId, setUserId] = useState("");
-  const [password, setPassword] = useState("");
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    try {
-      const response = await fetch("/api/v1/users/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          userName: userId,
-          password: password
-        }),
-        credentials: "include"
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log("✅ 로그인 성공", data);
-
-        localStorage.setItem("user", JSON.stringify(data));
-        localStorage.setItem("token", data.token);
-
-        navigate("/posts");
-      } else {
-        console.log("❌ 로그인 실패");
-        // 실패 처리 UI 필요시 여기에 추가
-      }
-    } catch (error) {
-      console.error("🚨 로그인 요청 중 오류 발생:", error);
-    }
-  };
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
@@ -49,7 +13,13 @@ const LoginPage: React.FC = () => {
           <h2 className="text-3xl font-bold text-white mb-2">Welcome Back</h2>
           <p className="text-gray-400">Sign in to continue to CineView</p>
         </div>
-        <form className="space-y-6" onSubmit={handleLogin}>
+        <form
+          className="space-y-6"
+          onSubmit={(e) => {
+            e.preventDefault();
+            login();
+          }}
+        >
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
               Username
@@ -61,8 +31,6 @@ const LoginPage: React.FC = () => {
               <input
                 type="text"
                 id="username"
-                value={userId}
-                onChange={(e) => setUserId(e.target.value)}
                 className="w-full bg-gray-700 border-none text-white pl-10 pr-4 py-3 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none"
                 placeholder="Enter your username"
                 required
@@ -80,8 +48,6 @@ const LoginPage: React.FC = () => {
               <input
                 type="password"
                 id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-gray-700 border-none text-white pl-10 pr-4 py-3 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none"
                 placeholder="Enter your password"
                 required
@@ -102,10 +68,10 @@ const LoginPage: React.FC = () => {
         </form>
         <div className="mt-6 text-center">
           <p className="text-gray-400">
-            Don't have an account?{" "}
-            <a href="/signup" className="text-yellow-400 hover:text-yellow-300 font-medium">
+            Don't have an account?{' '}
+            <button onClick={() => setActiveTab("signup")} className="text-yellow-400 hover:text-yellow-300 font-medium">
               Sign up
-            </a>
+            </button>
           </p>
         </div>
       </div>
