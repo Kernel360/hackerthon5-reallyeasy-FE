@@ -1,0 +1,71 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# node
+node_modules/
+
+# production
+dist/
+build/
+
+# Vite / Temp / Logs
+.vite/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# TypeScript build
+*.tsbuildinfo
+
+# local env
+.env*
+!.env.example
+
+# IDEs / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Tailwind
+tailwind.config.js
+tailwind.config.cjs
+tailwind.config.ts
+
+# PostCSS
+postcss.config.js
+postcss.config.cjs
+postcss.config.ts
+
+# Mac system files
+.AppleDouble
+.LSOverride
+
+# Windows
+*.lnk
+
+# Optional: local preview server cache
+.vite/deps_temp/
