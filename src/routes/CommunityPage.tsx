@@ -1,13 +1,23 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useTabStore } from "../stores/useTabStore";
-
-type Props = {
-  setActiveTab: (tab: "home" | "community" | "post-detail" | "create-post" | "edit-post" | "login" | "signup") => void;
-};
+import { usePostStore } from "../stores/usePostStore";
 
 const CommunityPage: React.FC = () => {
   const setActiveTab = useTabStore((state) => state.setActiveTab);
+  const { posts, pagination, searchPosts } = usePostStore();
 
+  const currentPage = pagination?.page ?? 0;
+  const totalPages = pagination?.totalPage ?? 1;
+
+  useEffect(() => {
+    searchPosts("FREE", 0, 10); // 예: 카테고리 "FREE", 1페이지당 10개 조회
+  }, []);
+
+  const handlePageChange = (page: number) => {
+    if (page >= 0 && page < totalPages) {
+      searchPosts("FREE", page, 10);
+    }
+  };
   return (
     <div className="py-8">
       <div className="flex justify-between items-center mb-8">
@@ -31,35 +41,54 @@ const CommunityPage: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {[...Array(10)].map((_, index) => (
+           {posts.map((post) => (
               <tr
-                key={index}
-                onClick={() => setActiveTab("post-detail")}
-                className="border-b border-gray-700 hover:bg-gray-750 transition-colors cursor-pointer"
+                key={post.id}
+                onClick={() => {
+                  usePostStore.getState().getPost(post.id);
+                  setActiveTab("post-detail");
+                }}
+                className="cursor-pointer hover:bg-gray-700 transition"
               >
-                <td className="px-6 py-4 text-gray-400">{index + 1}</td>
-                <td className="px-6 py-4 text-gray-100 hover:text-yellow-400 transition-colors">
-                  {
-                    [
-                      "Just watched the new sci-fi blockbuster!",
-                      "My thoughts on the latest superhero movie",
-                      "Classic film recommendations",
-                      "Documentary suggestions needed",
-                      "Horror movie night discussion",
-                      "Foreign film masterpieces",
-                      "Action movie rankings 2025",
-                      "Indie films you shouldn't miss",
-                      "Movie soundtrack appreciation",
-                      "Weekend movie marathon ideas",
-                    ][index % 10]
-                  }
-                </td>
-                <td className="px-6 py-4 text-gray-300">User{index + 1}</td>
-                <td className="px-6 py-4 text-gray-400">May {8 - (index % 7)}, 2025</td>
+                <td className="px-6 py-4 text-gray-400">{post.id}</td>
+                <td className="px-6 py-4 text-gray-100 hover:text-yellow-400 transition-colors">{post.title}</td>
+                <td className="px-6 py-4 text-gray-300">{post.author_name}</td>
+                <td className="px-6 py-4 text-gray-400">{post.created_at}</td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* 페이징 영역 */}
+      <div className="mt-6 flex justify-center space-x-2">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          className="px-4 py-2 text-gray-400 hover:text-white transition-colors cursor-pointer"
+          disabled={currentPage === 0}
+        >
+          Previous
+        </button>
+        {Array.from({ length: totalPages }, (_, i) => (
+          <button
+            key={i}
+            onClick={() => handlePageChange(i)}
+            className={`w-10 h-10 rounded-full ${
+              currentPage === i
+                ? "bg-yellow-500 text-gray-900"
+                : "text-gray-400 hover:text-white"
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          className="px-4 py-2 text-gray-400 hover:text-white transition-colors cursor-pointer"
+          disabled={currentPage >= totalPages - 1}
+        >
+          Next
+        </button>
       </div>
     </div>
   );

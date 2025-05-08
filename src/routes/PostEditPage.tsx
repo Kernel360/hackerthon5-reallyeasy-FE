@@ -1,19 +1,38 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useTabStore } from "../stores/useTabStore";
+import { usePostStore } from "../stores/usePostStore";
 
 const PostEditPage: React.FC = () => {
   const setActiveTab = useTabStore((state) => state.setActiveTab);
+  const { post, updatePost } = usePostStore();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [category, setCategory] = useState("FREE");
+
+  useEffect(() => {
+    if (post) {
+      setTitle(post.title);
+      setContent(post.content);
+      setCategory(post.category);
+    }
+  }, [post]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setActiveTab("post-detail");
+    if (!post) return;
+
+    const updatedId = await updatePost(post.id, { title, content, category });
+    if (updatedId) setActiveTab("post-detail");
   };
+
+  if (!post) return <div className="text-gray-400 text-center pt-32">No post to edit.</div>;
 
   return (
     <div className="py-8 max-w-4xl mx-auto">
       <div className="bg-gray-800 rounded-lg shadow-lg p-8">
         <div className="mb-8">
-          <button
+        <button
             onClick={() => setActiveTab("post-detail")}
             className="text-yellow-400 hover:text-yellow-300 mb-6 flex items-center cursor-pointer whitespace-nowrap !rounded-button"
           >
@@ -30,8 +49,9 @@ const PostEditPage: React.FC = () => {
               <input
                 type="text"
                 id="edit-post-title"
+				value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 className="w-full bg-gray-700 border-none text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none"
-                defaultValue="Just watched the new sci-fi blockbuster!"
                 required
               />
             </div>
@@ -42,10 +62,9 @@ const PostEditPage: React.FC = () => {
               <textarea
                 id="edit-post-content"
                 rows={10}
+				value={content}
+                onChange={(e) => setContent(e.target.value)}
                 className="w-full bg-gray-700 border-none text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none resize-none"
-                defaultValue={`Just finished watching the latest sci-fi blockbuster and I had to share my thoughts! The visual effects were absolutely stunning, especially during the space battle sequences. The director really pushed the boundaries of what's possible in modern cinema.
-
-The plot was intricate but well-executed, keeping me engaged throughout the entire runtime. The character development was particularly strong, and the ending left me thinking about it long after I left the theater.`}
                 required
               ></textarea>
             </div>

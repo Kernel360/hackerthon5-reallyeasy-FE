@@ -1,10 +1,47 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTabStore } from "../stores/useTabStore";
 
-
 const LoginPage: React.FC = () => {
-  const login = useTabStore((state) => state.login);
   const setActiveTab = useTabStore((state) => state.setActiveTab);
+  const login = useTabStore((state) => state.login); // 필요 시 상태 기반 로그인 처리도 가능
+
+  const [userId, setUserId] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("/api/v1/users/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          userName: userId,
+          password: password
+        }),
+        credentials: "include"
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("✅ 로그인 성공");
+
+        localStorage.setItem("user", JSON.stringify(data));
+        localStorage.setItem("token", data.token);
+
+        login(); // 상태를 통해 로그인 처리 (선택 사항)
+        setActiveTab("home"); // 로그인 후 홈으로 이동
+      } else {
+        console.log("❌ 로그인 실패");
+        alert("로그인 실패: 아이디 또는 비밀번호를 확인해주세요.");
+      }
+    } catch (err) {
+      console.error("❌ 로그인 중 오류 발생:", err);
+      alert("네트워크 오류가 발생했습니다.");
+    }
+  };
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
@@ -13,13 +50,7 @@ const LoginPage: React.FC = () => {
           <h2 className="text-3xl font-bold text-white mb-2">Welcome Back</h2>
           <p className="text-gray-400">Sign in to continue to CineView</p>
         </div>
-        <form
-          className="space-y-6"
-          onSubmit={(e) => {
-            e.preventDefault();
-            login();
-          }}
-        >
+        <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
               Username
@@ -31,6 +62,8 @@ const LoginPage: React.FC = () => {
               <input
                 type="text"
                 id="username"
+                value={userId}
+                onChange={(e) => setUserId(e.target.value)}
                 className="w-full bg-gray-700 border-none text-white pl-10 pr-4 py-3 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none"
                 placeholder="Enter your username"
                 required
@@ -48,16 +81,13 @@ const LoginPage: React.FC = () => {
               <input
                 type="password"
                 id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-gray-700 border-none text-white pl-10 pr-4 py-3 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none"
                 placeholder="Enter your password"
                 required
               />
             </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <a href="#" className="text-sm text-yellow-400 hover:text-yellow-300">
-              Forgot password?
-            </a>
           </div>
           <button
             type="submit"
@@ -68,8 +98,11 @@ const LoginPage: React.FC = () => {
         </form>
         <div className="mt-6 text-center">
           <p className="text-gray-400">
-            Don't have an account?{' '}
-            <button onClick={() => setActiveTab("signup")} className="text-yellow-400 hover:text-yellow-300 font-medium">
+            Don't have an account?{" "}
+            <button
+              onClick={() => setActiveTab("signup")}
+              className="text-yellow-400 hover:text-yellow-300 font-medium"
+            >
               Sign up
             </button>
           </p>
