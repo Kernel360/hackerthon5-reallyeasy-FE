@@ -31,7 +31,7 @@ const App: React.FC = () => {
       <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} />
       <main className="container mx-auto px-4 pt-24 pb-12 min-h-[1024px]">
         <div className="max-w-7xl mx-auto">
-        {activeTab === "home" && <HomePage />}
+          {activeTab === "home" && <HomePage />}
           {activeTab === "movie-detail" && <MovieDetailPage />}
           {activeTab === "community" && <CommunityPage />}
           {activeTab === "post-detail" && <PostDetailPage />}

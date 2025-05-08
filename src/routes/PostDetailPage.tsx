@@ -1,8 +1,12 @@
 import React from "react";
 import { useTabStore } from "../stores/useTabStore";
+import { usePostStore } from "../stores/usePostStore";
 
 const PostDetailPage: React.FC = () => {
+  const { post, deletePost, comments } = usePostStore();
   const setActiveTab = useTabStore((state) => state.setActiveTab);
+
+  if (!post) return <div className="text-gray-400 text-center pt-32">No Post Found.</div>;
 
   return (
     <div className="py-8 max-w-4xl mx-auto">
@@ -16,20 +20,20 @@ const PostDetailPage: React.FC = () => {
             &lt; Back to Community Board
           </button>
           <h1 className="text-3xl font-bold mb-4">
-            Just watched the new sci-fi blockbuster!
+            {post.title}
           </h1>
           <div className="flex items-center text-gray-400">
             <div className="flex items-center mr-6">
-              <span>John Doe</span>
+              <span>{post.author_name}</span>
             </div>
-            <span>May 8, 2025</span>
+            <span>{post.created_at}</span>
           </div>
         </div>
 
         {/* Content */}
         <div className="prose prose-invert max-w-none mb-8">
           <p className="text-gray-300 leading-relaxed">
-            Just finished watching the latest sci-fi blockbuster...
+            {post.content}
           </p>
         </div>
 
@@ -41,7 +45,15 @@ const PostDetailPage: React.FC = () => {
           >
             Edit Post
           </button>
-          <button className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 font-semibold transition-colors flex items-center cursor-pointer whitespace-nowrap rounded-lg">
+          <button 
+            onClick={async () => {
+              const ok = window.confirm("삭제할까요?");
+              if (ok) {
+                const success = await deletePost(post.id);
+                if (success) setActiveTab("community");
+              }
+            }}
+            className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 font-semibold transition-colors flex items-center cursor-pointer whitespace-nowrap rounded-lg">
             Delete Post
           </button>
         </div>
@@ -66,24 +78,20 @@ const PostDetailPage: React.FC = () => {
 
           {/* Existing Comments */}
           <div className="space-y-6">
-            {[1, 2, 3].map((comment) => (
-              <div key={comment} className="bg-gray-700 rounded-lg p-6">
+          {comments.map((comment) => (
+              <div key={comment.commentId} className="bg-gray-700 rounded-lg p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center">
                     <div>
-                      <h4 className="font-medium">User {comment}</h4>
+                      <h4 className="font-medium">{comment.commentId}</h4>
                       <p className="text-gray-400 text-sm">
-                        May {8 - comment}, 2025
+                        {comment.createdAt}
                       </p>
                     </div>
                   </div>
                 </div>
                 <p className="text-gray-300">
-                  {comment === 1
-                    ? "Completely agree! The visual effects were mind-blowing. Can't wait for the sequel!"
-                    : comment === 2
-                    ? "Great review! You perfectly captured what made this movie special."
-                    : "The character development was indeed outstanding. Best sci-fi movie of the year so far!"}
+                {comment.content}
                 </p>
               </div>
             ))}

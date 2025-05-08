@@ -1,8 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTabStore } from "../stores/useTabStore";
+import { usePostStore } from "../stores/usePostStore";
 
 const PostCreatePage: React.FC = () => {
   const setActiveTab = useTabStore((state) => state.setActiveTab);
+  const createPost = usePostStore((state) => state.createPost);
+
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [category] = useState("FREE"); // 필요 시 select로 확장 가능
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const newPostId = await createPost({ title, content, category });
+    if (newPostId) {
+      setActiveTab("community");
+    }
+  };
 
   return (
     <div className="py-8 max-w-4xl mx-auto">
@@ -17,38 +32,30 @@ const PostCreatePage: React.FC = () => {
           <h1 className="text-3xl font-bold mb-6">Create New Post</h1>
         </div>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            // TODO: 실제 post 저장 로직 추가
-            setActiveTab("community");
-          }}
-        >
+        <form onSubmit={handleSubmit}>
           <div className="space-y-6">
             <div>
-              <label
-                htmlFor="post-title"
-                className="block text-sm font-medium text-gray-300 mb-2"
-              >
+              <label htmlFor="post-title" className="block text-sm font-medium text-gray-300 mb-2">
                 Post Title
               </label>
               <input
                 type="text"
                 id="post-title"
+				value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 className="w-full bg-gray-700 border-none text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none"
                 placeholder="Enter your post title"
                 required
               />
             </div>
             <div>
-              <label
-                htmlFor="post-content"
-                className="block text-sm font-medium text-gray-300 mb-2"
-              >
+              <label htmlFor="post-content" className="block text-sm font-medium text-gray-300 mb-2">
                 Post Content
               </label>
               <textarea
                 id="post-content"
+				value={content}
+                onChange={(e) => setContent(e.target.value)}
                 rows={10}
                 className="w-full bg-gray-700 border-none text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none resize-none"
                 placeholder="Write your post content here..."
