@@ -5,6 +5,7 @@ export interface Comment {
   commentId: number
   postId: number
   userId: number
+  name: string
   content: string
   createdAt: string
   updatedAt: string
@@ -48,11 +49,12 @@ export const usePostStore = create(
       post: null as Post | null,
       pagination: null as Pagination | null,
       comments: [] as Comment[],
-      comment: null as Comment | null
+      comment: null as Comment | null,
+      postId: null as number | null,
+      loading: false
     },
     set => {
       return {
-        // ✅ 상태 직접 수정용
         setPosts(posts: Post[]) {
           set({ posts })
         },
@@ -61,6 +63,9 @@ export const usePostStore = create(
         },
         setComments(comments: Comment[]) {
           set({ comments });
+        },
+        setPostId(postId: number) {
+          set({ postId });
         },
     
         async searchPosts(category: string, page: number, size: number) {
@@ -95,11 +100,10 @@ export const usePostStore = create(
             alert(`게시글 목록 불러오기 중 오류 발생: ${error.message || '네트워크 오류'}`)
           }
         },        
-    
-        // ...getPost, createPost 등 나머지 유지
-    
-
+  
         async getPost(id: number): Promise<void> {
+          set({ loading: true });
+
           try {
             const res = await authFetch(`/api/v1/posts/${id}`)
         
@@ -122,6 +126,8 @@ export const usePostStore = create(
             set({ comments: normalizedPost.comments })
           } catch (error: any) {
             alert(`조회 중 오류 발생: ${error.message || '네트워크 오류'}`)
+          } finally {
+            set({ loading: false }); // 데이터 로딩 완료
           }
         },        
 
@@ -185,7 +191,72 @@ export const usePostStore = create(
             alert(`수정 중 오류 발생: ${error.message || '네트워크 오류'}`)
             return null
           }
+        },
+
+        async createComment(id: number, content: string): Promise<number | null> {
+          try {
+            const res = await authFetch(`/api/v1/comments/${id}`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ content }),
+            });
+
+            if (!res.ok) {
+              const errorText = await res.text();
+              alert(`댓글 등록 실패: ${errorText || '서버 오류가 발생했습니다.'}`);
+              return null;
+            }
+
+            const data = await res.json();
+            return data.commentId || null;
+          } catch (error: any) {
+            alert(`댓글 등록 중 오류 발생: ${error.message || '네트워크 오류'}`);
+            return null;
+          }
+        },
+
+        async deleteComment(commentId: number): Promise<boolean> {
+          try {
+            const res = await authFetch(`/api/v1/comments/${commentId}`, { method: 'DELETE' });
+
+            if (!res.ok) {
+              const errorText = await res.text();
+              alert(`댓글 삭제 실패: ${errorText || '서버 오류가 발생했습니다.'}`);
+              return false;
+            }
+
+            return true;
+          } catch (error: any) {
+            alert(`댓글 삭제 중 오류 발생: ${error.message || '네트워크 오류'}`);
+            return false;
+          }
+        },
+
+        async updateComment(commentId: number, content: string): Promise<boolean> {
+          try {
+            const res = await authFetch(`/api/v1/comments/${commentId}`, {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ content }),
+            });
+
+            if (!res.ok) {
+              const errorText = await res.text();
+              alert(`댓글 수정 실패: ${errorText || '서버 오류가 발생했습니다.'}`);
+              return false;
+            }
+
+            return true;
+          } catch (error: any) {
+            alert(`댓글 수정 중 오류 발생: ${error.message || '네트워크 오류'}`);
+            return false;
+          }
         }
+
       }
     }
   )

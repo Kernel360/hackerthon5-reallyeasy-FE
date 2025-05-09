@@ -4,7 +4,7 @@ import { usePostStore } from "../stores/usePostStore";
 
 const PostEditPage: React.FC = () => {
   const setActiveTab = useTabStore((state) => state.setActiveTab);
-  const { post, updatePost } = usePostStore();
+  const { post, postId, getPost, updatePost } = usePostStore();
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -20,10 +20,13 @@ const PostEditPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!post) return;
+    if (!post || postId === null) return;
 
-    const updatedId = await updatePost(post.id, { title, content, category });
-    if (updatedId) setActiveTab("post-detail");
+    const updatedId = await updatePost(postId, { title, content, category });
+    if (updatedId) {
+      setActiveTab("post-detail");  // 탭 전환
+      getPost(updatedId);           // 새로 저장된 데이터로 `getPost` 호출
+    }
   };
 
   if (!post) return <div className="text-gray-400 text-center pt-32">No post to edit.</div>;
@@ -62,7 +65,7 @@ const PostEditPage: React.FC = () => {
               <textarea
                 id="edit-post-content"
                 rows={10}
-				value={content}
+				        value={content}
                 onChange={(e) => setContent(e.target.value)}
                 className="w-full bg-gray-700 border-none text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none resize-none"
                 required
