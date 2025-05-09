@@ -10,7 +10,7 @@ const CommunityPage: React.FC = () => {
   const totalPages = pagination?.totalPage ?? 1;
 
   useEffect(() => {
-    searchPosts("FREE", 0, 10); // 예: 카테고리 "FREE", 1페이지당 10개 조회
+    searchPosts("FREE", 0, 10);
   }, []);
 
   const handlePageChange = (page: number) => {
@@ -45,6 +45,7 @@ const CommunityPage: React.FC = () => {
               <tr
                 key={post.id}
                 onClick={() => {
+                  usePostStore.getState().setPostId(post.id);
                   usePostStore.getState().getPost(post.id);
                   setActiveTab("post-detail");
                 }}
