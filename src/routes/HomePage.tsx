@@ -13,7 +13,7 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     const fetchMovies = async () => {
       try {
-        const response = await fetch(`/api/v1/movies?size=18&page=${currentPage}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/movies?size=18&page=${currentPage}`, {
           headers: { "Content-Type": "application/json" },
         });
 
