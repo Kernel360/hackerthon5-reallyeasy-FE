@@ -6,6 +6,7 @@ const CommunityPage: React.FC = () => {
   const setActiveTab = useTabStore((state) => state.setActiveTab);
   const { posts, pagination, searchPosts } = usePostStore();
 
+  const isLoggedIn = !!localStorage.getItem("token");
   const currentPage = pagination?.page ?? 0;
   const totalPages = pagination?.totalPage ?? 1;
 
@@ -18,18 +19,31 @@ const CommunityPage: React.FC = () => {
       searchPosts("FREE", page, 10);
     }
   };
+
   return (
     <div className="py-8">
+      {/* 헤더 */}
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-3xl font-bold">Community Board</h2>
-        <button
-          onClick={() => setActiveTab("create-post")}
-          className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-6 py-2 font-semibold transition-colors flex items-center cursor-pointer whitespace-nowrap rounded-lg"
-        >
-          Write Post
-        </button>
+        {isLoggedIn ? (
+          <button
+            onClick={() => setActiveTab("create-post")}
+            className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-6 py-2 font-semibold transition-colors rounded-lg"
+          >
+            Write Post
+          </button>
+        ) : (
+          <button
+            disabled
+            className="bg-gray-600 text-gray-400 px-6 py-2 font-semibold rounded-lg cursor-not-allowed"
+            title="로그인 후 작성 가능"
+          >
+            Write Post
+          </button>
+        )}
       </div>
 
+      {/* 게시글 목록 */}
       <div className="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
         <table className="w-full">
           <thead>
@@ -41,7 +55,7 @@ const CommunityPage: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-           {posts.map((post) => (
+            {posts.map((post) => (
               <tr
                 key={post.id}
                 onClick={() => {
@@ -61,11 +75,11 @@ const CommunityPage: React.FC = () => {
         </table>
       </div>
 
-      {/* 페이징 영역 */}
+      {/* 페이지네이션 */}
       <div className="mt-6 flex justify-center space-x-2">
         <button
           onClick={() => handlePageChange(currentPage - 1)}
-          className="px-4 py-2 text-gray-400 hover:text-white transition-colors cursor-pointer"
+          className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
           disabled={currentPage === 0}
         >
           Previous
@@ -85,7 +99,7 @@ const CommunityPage: React.FC = () => {
         ))}
         <button
           onClick={() => handlePageChange(currentPage + 1)}
-          className="px-4 py-2 text-gray-400 hover:text-white transition-colors cursor-pointer"
+          className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
           disabled={currentPage >= totalPages - 1}
         >
           Next
