@@ -1,25 +1,49 @@
 import { create } from "zustand";
 
-export type Movie = {
-  id: number;
+export interface Movie {
+  movieId: number;
+  tmdbId: number;
   title: string;
-  rating: number;
-  genre: string;
-  duration: string;
+  originalLanguage: string;
+  overview: string;
+  posterPath: string;
   releaseDate: string;
-  director: string;
-  writers: string;
-  stars: string;
-  production: string;
-  description: string;
-};
+  averageRating: number;
+  reviewCount: number;
+}
 
-type MovieState = {
+export interface Review {
+  reviewId: number;
+  movieId: number;
+  tmdbId: number;
+  posterPath: string;
+  reviewerId: number;
+  reviewer: string;
+  content: string;
+  rating: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MovieDetail {
+  movieId: number;
+  tmdbId: number;
+  title: string;
+  original_language: string;
+  overview: string;
+  poster_path: string;
+  release_date: string;
+  averageRating: number;
+  reviewCount: number;
+  reviews: Review[];
+}
+
+interface MovieStore {
   selectedMovie: Movie | null;
   setSelectedMovie: (movie: Movie) => void;
-};
+}
 
-export const useMovieStore = create<MovieState>((set) => ({
+export const useMovieStore = create<MovieStore>((set) => ({
   selectedMovie: null,
   setSelectedMovie: (movie) => set({ selectedMovie: movie }),
 }));

@@ -1,17 +1,39 @@
 import { create } from 'zustand';
 
+type TabType =
+  | "home"
+  | "movie-detail"
+  | "community"
+  | "post-detail"
+  | "create-post"
+  | "edit-post"
+  | "login"
+  | "logout"
+  | "signup";
+
 type TabState = {
-  activeTab: "home" | "movie-detail" | "community" | "post-detail" | "create-post" | "edit-post" | "login" | "signup";
+  activeTab: TabType;
+  previousTab: TabType | null;
   isLoggedIn: boolean;
-  setActiveTab: (tab: TabState["activeTab"]) => void;
+  setActiveTab: (tab: TabType) => void;
+  goBack: () => void;
   login: () => void;
   logout: () => void;
 };
 
-export const useTabStore = create<TabState>((set) => ({
+export const useTabStore = create<TabState>((set, get) => ({
   activeTab: "home",
+  previousTab: null,
   isLoggedIn: false,
-  setActiveTab: (tab) => set({ activeTab: tab }),
+  setActiveTab: (tab) =>
+    set((state) => ({
+      previousTab: state.activeTab,
+      activeTab: tab,
+    })),
+  goBack: () => {
+    const prev = get().previousTab || "home";
+    set({ activeTab: prev, previousTab: null });
+  },
   login: () => set({ isLoggedIn: true, activeTab: "home" }),
   logout: () => set({ isLoggedIn: false, activeTab: "home" }),
 }));

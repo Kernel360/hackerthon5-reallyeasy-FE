@@ -70,7 +70,12 @@ export const usePostStore = create(
     
         async searchPosts(category: string, page: number, size: number) {
           try {
-            const res = await authFetch(`/api/v1/posts?category=${category}&page=${page}&size=${size}`)
+            const res = await fetch(`/api/v1/posts?category=${category}&page=${page}&size=${size}`, {
+              headers: {
+              "Content-Type": "application/json"
+                }
+            })
+
         
             if (!res.ok) {
               const errorText = await res.text()
@@ -105,7 +110,11 @@ export const usePostStore = create(
           set({ loading: true });
 
           try {
-            const res = await authFetch(`/api/v1/posts/${id}`)
+            const res = await fetch(`/api/v1/posts/${id}`, {
+              headers: {
+              "Content-Type": "application/json"
+                }
+            })
         
             if (!res.ok) {
               const errorText = await res.text()
