@@ -54,7 +54,7 @@ const PostCreatePage: React.FC = () => {
               </label>
               <textarea
                 id="post-content"
-				value={content}
+				        value={content}
                 onChange={(e) => setContent(e.target.value)}
                 rows={10}
                 className="w-full bg-gray-700 border-none text-white px-4 py-3 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none resize-none"
