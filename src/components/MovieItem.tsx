@@ -7,25 +7,21 @@ type Props = {
 };
 
 const MovieItem: React.FC<Props> = ({ item }) => {
-  const setActiveTab = useTabStore((state) => state.setActiveTab); 
+  const setActiveTab = useTabStore((state) => state.setActiveTab);
   const setSelectedMovie = useMovieStore((state) => state.setSelectedMovie);
 
   const handleClick = () => {
     setSelectedMovie({
-      id: item,
+      movieId: item,
+      tmdbId: 123456,
       title: `Movie Title ${item}`,
-      rating: Number((Math.random() * 2 + 3).toFixed(1)),
-      genre: "Action, Adventure, Sci-Fi",
-      duration: "2h 15min",
+      originalLanguage: "en",
+      overview: "This is a sample overview of the movie.",
+      posterPath: "/sample.jpg",
       releaseDate: "2025",
-      director: "Sample Director",
-      writers: "Writer One, Writer Two",
-      stars: "Actor A, Actor B, Actor C",
-      production: "CineStudio",
-      description:
-        "A brief description of the movie plot that gives viewers an idea of what to expect without revealing too much.",
-    });
-
+      averageRating: Number((Math.random() * 2 + 3).toFixed(1)),
+      reviewCount: Math.floor(Math.random() * 1000),
+    })as any;
     setActiveTab("movie-detail");
   };
 
