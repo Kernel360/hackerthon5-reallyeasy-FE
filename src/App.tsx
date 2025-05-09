@@ -23,8 +23,11 @@ const App: React.FC = () => {
 
   const handleLogout = () => {
     setIsLoggedIn(false);
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setActiveTab("home");
   };
+  
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -37,7 +40,7 @@ const App: React.FC = () => {
           {activeTab === "post-detail" && <PostDetailPage />}
           {activeTab === "create-post" && <PostCreatePage />}
           {activeTab === "edit-post" && <PostEditPage />}
-          {activeTab === "login" && <LoginPage />}
+          {activeTab === "login" && <LoginPage onLogin={handleLogin} />}
           {activeTab === "signup" && <SignupPage />}
         </div>
       </main>

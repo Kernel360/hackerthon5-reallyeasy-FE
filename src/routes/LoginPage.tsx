@@ -1,9 +1,13 @@
 import React, { useState } from "react";
 import { useTabStore } from "../stores/useTabStore";
 
-const LoginPage: React.FC = () => {
+type Props = {
+  onLogin: () => void;
+};
+
+const LoginPage: React.FC<Props> = ({ onLogin }) => {
+  const login = useTabStore((state) => state.login);
   const setActiveTab = useTabStore((state) => state.setActiveTab);
-  const login = useTabStore((state) => state.login); // 필요 시 상태 기반 로그인 처리도 가능
 
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
@@ -14,27 +18,22 @@ const LoginPage: React.FC = () => {
     try {
       const response = await fetch("/api/v1/users/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          userName: userId,
-          password: password
-        }),
-        credentials: "include"
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userName: userId, password }),
+        credentials: "include",
       });
 
       if (response.ok) {
         const data = await response.json();
-        console.log("✅ 로그인 성공");
 
+        // ✅ 사용자 정보와 토큰 저장
         localStorage.setItem("user", JSON.stringify(data));
         localStorage.setItem("token", data.token);
 
-        login(); // 상태를 통해 로그인 처리 (선택 사항)
-        setActiveTab("home"); // 로그인 후 홈으로 이동
+        login();     // zustand 로그인 상태 전환
+        onLogin();   // App 컴포넌트에 로그인 알림
+        setActiveTab("home"); // 홈으로 이동
       } else {
-        console.log("❌ 로그인 실패");
         alert("로그인 실패: 아이디 또는 비밀번호를 확인해주세요.");
       }
     } catch (err) {
@@ -64,7 +63,7 @@ const LoginPage: React.FC = () => {
                 id="username"
                 value={userId}
                 onChange={(e) => setUserId(e.target.value)}
-                className="w-full bg-gray-700 border-none text-white pl-10 pr-4 py-3 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none"
+                className="w-full bg-gray-700 text-white pl-10 pr-4 py-3 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none"
                 placeholder="Enter your username"
                 required
               />
@@ -83,7 +82,7 @@ const LoginPage: React.FC = () => {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-gray-700 border-none text-white pl-10 pr-4 py-3 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none"
+                className="w-full bg-gray-700 text-white pl-10 pr-4 py-3 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none"
                 placeholder="Enter your password"
                 required
               />
@@ -99,10 +98,7 @@ const LoginPage: React.FC = () => {
         <div className="mt-6 text-center">
           <p className="text-gray-400">
             Don't have an account?{" "}
-            <button
-              onClick={() => setActiveTab("signup")}
-              className="text-yellow-400 hover:text-yellow-300 font-medium"
-            >
+            <button onClick={() => setActiveTab("signup")} className="text-yellow-400 hover:text-yellow-300 font-medium">
               Sign up
             </button>
           </p>
